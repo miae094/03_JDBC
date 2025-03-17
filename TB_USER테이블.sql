@@ -25,3 +25,5 @@ VALUES(SEQ_USER_NO.NEXTVAL, 'user02', 'pass02', '유저이', DEFAULT );
 SELECT * FROM TB_USER;
 
 COMMIT;
+
+
