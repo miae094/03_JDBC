@@ -68,8 +68,8 @@ public class UserView {
 				switch(input) {
 				case 1: insertUser(); break;
 				case 2: selectAll(); break;
-				case 3: /*selectName();*/ break;
-				case 4: /*selectUser();*/ break;
+				case 3: selectName(); break;
+				case 4: selectUser(); break;
 				case 5: /*deleteUser();*/ break;
 				case 6: /*updateName();*/ break;
 				case 7: /*insertUser2();*/ break;
@@ -111,10 +111,11 @@ public class UserView {
 		System.out.printf("이름 : ");
 		String userName = sc.nextLine();
 		
+		User user = new User(0, userId, userPw, userName, "");
+		//int result = service.insertUser(userId, userPw, userName);
+		int result = service.insertUser(user);
 		
-		boolean result = service.insertUser(userId, userPw, userName);
-		
-		if(result) {
+		if(result > 0 ) {
 			System.out.println(userName + " 입력 성공");
 		} else {
 			System.out.println("추가 실패");
@@ -126,8 +127,44 @@ public class UserView {
 	
 	private void selectAll() {
 		System.out.println("====== 전체 유저 조회 =====");
-		List<User> user = new ArrayList<User>();
-		user.add(service.selectUser());
+		List<User> userList = service.selectAll();
+		
+		for(User u : userList) {
+			System.out.println(u);
+		}
 		
 	}
+	
+	private void selectName() {
+		
+		System.out.println("====== 유저 이름 검색 =====");
+		System.out.print("유저 이름을 검색하세요 : ");
+		String userName = sc.nextLine();
+		
+		List<User> userList = service.selectName(userName);
+		
+		for(User u : userList) {
+			System.out.println(u);
+		}
+		
+	}
+	
+	private void selectUser() {
+		System.out.println("====== 유저 번호 검색 =====");
+		System.out.print("유저 번호 : ");
+		int userNo = sc.nextInt();
+		
+		User user = service.selectUser(userNo);
+		
+		if (user != null) {
+			System.out.println(user);
+		} else {
+			System.out.println("해당 번호의 유저가 없습니다.");
+		}
+		
+		
+	}
+	
+	
+	
 }

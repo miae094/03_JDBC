@@ -1,6 +1,7 @@
 package edu.kh.jdbc.service;
 
 import java.sql.Connection;
+import java.util.List;
 
 import edu.kh.jdbc.common.JDBCTemplate;
 import edu.kh.jdbc.dao.UserDAO;
@@ -47,7 +48,7 @@ public class UserService {
 
 
 
-	public boolean insertUser(String userId, String userPw, String userName) {
+	public int insertUser(User user) {
 		
 		// 1. 커넥션 생성
 		Connection conn = JDBCTemplate.getConnection();
@@ -55,13 +56,12 @@ public class UserService {
 		// 2. 데이터 가공(비즈니스 로직) -> 할게 없으면 넘어감
 		
 		// 3. DAO 메서드 호출 결과 반환
-		int result = dao.insertUser(conn, userId, userPw, userName);
-		boolean flag = false;
+		//int result = dao.insertUser(conn, userId, userPw, userName);
+		int result = dao.insertUser(conn, user);
 		
 		// 4. DML(commit / rollback) (단순 select 면 넘어가도됨)
 		if(result > 0) {	// insert 성공시
 			JDBCTemplate.commit(conn); // DB에 INSERT 영구 반영
-			flag = true;
 		} else {	// insert 실패
 			
 			JDBCTemplate.rollback(conn);	// 실패 시 ROLLBACK
@@ -74,18 +74,52 @@ public class UserService {
 		
 		// 6. 결과를 view에게 리턴
 		
-		return flag;
+		return result;
+	}
+
+
+	public List<User> selectAll() {
+		
+		Connection conn = JDBCTemplate.getConnection();
+		List<User> userList = dao.selectAll(conn);
+		
+		// 다 쓴 커넥션 자원 반환
+		JDBCTemplate.close(conn);
+		
+		return userList;
 	}
 
 
 
 
-	public User selectUser() {
+	public List<User> selectName(String userName) {
+		
+		Connection conn = JDBCTemplate.getConnection();
+		
+		List<User> userList = dao.selectName(conn, userName);
+		
+		// 다 쓴 커넥션 자원 반환
+		JDBCTemplate.close(conn);
 		
 		
-		
-		return null;
+		return userList;
 	}
+
+
+	public User selectUser(int userNo) {
+		Connection conn = JDBCTemplate.getConnection();
+		
+		User user = dao.selectUser(conn, userNo);
+		
+		JDBCTemplate.close(conn);
+		
+		return user;
+	}
+
+
+
+
+
 	
 
 }

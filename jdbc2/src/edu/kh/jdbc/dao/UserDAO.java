@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 // import static : 지정된 경로에 존재하는 static 구문을 모두 얻어와
 // 클래스명.메서드명() 이 아닌 메서드명() 만 작성해도 호출가능하게 해주는 구문
@@ -93,7 +96,7 @@ public class UserDAO {
 
 
 
-	public int insertUser(Connection conn, String userId, String userPw, String userName) {
+	public int insertUser(Connection conn, User user) {
 		int result = 0;
 		
 		try {
@@ -105,9 +108,9 @@ public class UserDAO {
 			
 			
 			// 4. ? (위치홀더) 에 알맞은 값 세팅
-			pstmt.setString(1, userId);
-			pstmt.setString(2, userPw);
-			pstmt.setString(3, userName);
+			pstmt.setString(1, user.getUserId());
+			pstmt.setString(2, user.getUserPw());
+			pstmt.setString(3, user.getUserName());
 			
 			// 5. SQL 수행 후 결과 반환 받기
 			result = pstmt.executeUpdate();
@@ -128,6 +131,110 @@ public class UserDAO {
 		}
 		
 		return result;
+	}
+
+
+
+	public List<User> selectAll(Connection conn) {
+		List<User> userList = new ArrayList<User>();
+		
+		
+		try {
+			String sql = "SELECT * FROM TB_USER";
+			pstmt = conn.prepareStatement(sql);
+			
+			rs = pstmt.executeQuery();
+			
+			boolean flag = true;
+			
+			while(rs.next()) {
+				flag = false;
+				userList.add(new User(rs.getInt(1), rs.getString(2),
+						rs.getString(3),rs.getString(4),rs.getString(5)));
+				
+			}
+			
+			if(flag) {
+				System.out.println("조회값 없음");
+			}
+			
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			
+		} finally {
+			close(rs);
+			close(pstmt);
+			
+		}
+				
+		return userList;
+	}
+
+
+
+	public List<User> selectName(Connection conn, String userName) {
+		List<User> userList = new ArrayList<User>();
+		try {
+			
+			String sql = "SELECT * FROM TB_USER WHERE USER_NAME LIKE '%"
+					+ userName + "%'";
+			
+			pstmt = conn.prepareStatement(sql);
+			//pstmt.setString(1, userName);
+			
+			rs = pstmt.executeQuery();
+			
+			boolean flag = true;
+			
+			while(rs.next()) {
+				flag = false;
+				userList.add(new User(rs.getInt(1), rs.getString(2), rs.getString(3),
+						rs.getString(4), rs.getString(5)));
+			}
+			
+			if (flag) {
+				System.out.println("조회 결과가 없습니다.");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			close(rs);
+			close(pstmt);
+		}
+		
+		return userList;
+	}
+
+
+	public User selectUser(Connection conn, int userNo) {
+		User user = null;
+		
+		try {
+			// SQL 작성
+			
+			String sql = "SELECT * FROM TB_USER WHERE USER_NO = ?";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, userNo);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				user = new User(rs.getInt(1), rs.getString(2), rs.getString(3),
+						rs.getString(4), rs.getString(5));
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			close(rs);
+			close(pstmt);
+			
+		}
+		
+		return user;
 	}
 
 }
